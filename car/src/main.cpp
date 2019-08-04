@@ -1,7 +1,14 @@
-#include <Arduino.h>
-extern "C" {
-    #include <espnow.h>
+#include "main.h"
+#include <vector>
+
+std::vector<void (*)()> _loop_callbacks;
+
+void registerLoop(void (*callback)()) 
+{
+    _loop_callbacks.push_back(callback);
 }
+
+
 
 byte remoteDevice[6] = {0x30, 0xAE, 0xA4, 0x74, 0x20, 0x9D};
 
@@ -41,7 +48,14 @@ void sendData() {
 }
 
 void setup() {
-    Serial.begin(115200);
+
+    // Serial debug
+    #if DEBUG_SUPPORT
+        debugSetup();
+    #endif
+
+    // Init EEPROM, SPIFFS and system stuff
+    systemSetup();
 
     pinMode(2, OUTPUT);
     digitalWrite(2, HIGH);
